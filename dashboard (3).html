@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfficalBoxx Staff Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent: #5865F2;
+    --accent2: #eb459e;
+    --green: #57F287;
+    --red: #ED4245;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background-image: radial-gradient(ellipse at 20% 20%, #1a1a3e 0%, transparent 50%),
+                      radial-gradient(ellipse at 80% 80%, #1a0a1e 0%, transparent 50%);
+  }
+
+  .login-screen {
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+  }
+
+  .dashboard {
+    width: 100%;
+    max-width: 600px;
+    display: none;
+  }
+
+  .logo {
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -2px;
+    margin-bottom: 0.5rem;
+  }
+
+  .logo span { color: var(--accent); }
+
+  .subtitle {
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    margin-bottom: 3rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .card-title {
+    font-size: 0.7rem;
+    font-family: 'Space Mono', monospace;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 1.5rem;
+  }
+
+  input, select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input:focus, select:focus {
+    border-color: var(--accent);
+  }
+
+  select option { background: var(--surface); }
+
+  .btn {
+    width: 100%;
+    padding: 0.9rem;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+  .btn:active { transform: translateY(0); }
+
+  .btn-login {
+    background: var(--accent);
+    color: white;
+  }
+
+  .btn-promote {
+    background: var(--green);
+    color: #000;
+    margin-bottom: 0.75rem;
+  }
+
+  .btn-demote {
+    background: var(--red);
+    color: white;
+  }
+
+  .btn-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .btn-row .btn { margin: 0; }
+
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 100;
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--green); color: var(--green); }
+  .toast.error { border-color: var(--red); color: var(--red); }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .logout {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: none;
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+
+  .logout:hover { border-color: var(--red); color: var(--red); }
+
+  .error-msg {
+    color: var(--red);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="logo">Offical<span>Boxx</span></div>
+  <div class="subtitle">Staff Panel — Authorized Access Only</div>
+  <div class="card">
+    <div class="card-title">Authentication</div>
+    <input type="password" id="passwordInput" placeholder="Enter staff password" onkeydown="if(event.key==='Enter')login()">
+    <div class="error-msg" id="errorMsg">⚠ Invalid password</div>
+    <button class="btn btn-login" onclick="login()">Access Dashboard</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+  <div class="header">
+    <div class="logo" style="font-size:1.8rem">Offical<span>Boxx</span></div>
+    <button class="logout" onclick="logout()">Logout</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Target</div>
+    <input type="text" id="playerInput" placeholder="Player username (e.g. Steve123)">
+    <select id="roleSelect">
+      <option value="" disabled selected>Select a role...</option>
+      <option value="Founder">🟢 Founder</option>
+      <option value="👑 | Owner">👑 Owner</option>
+      <option value="🧑‍💼 | Manager">🧑‍💼 Manager</option>
+      <option value="👾 | Admin">👾 Admin</option>
+      <option value="🖱️ | Developer">🖱️ Developer</option>
+      <option value="🛡️ | Moderator">🛡️ Moderator</option>
+      <option value="⛏️ | Builder">⛏️ Builder</option>
+      <option value="🧊 | Helper">🧊 Helper</option>
+      <option value="⛏️ | Trainee">⛏️ Trainee</option>
+    </select>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Action</div>
+    <div class="btn-row">
+      <button class="btn btn-promote" onclick="sendAction('promote')">⬆ Promote</button>
+      <button class="btn btn-demote" onclick="sendAction('demote')">⬇ Demote</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ⚠️ VAIHDA NÄMÄ OMIIN ARVOIHISI:
+  const WEBHOOK_URL = "LAITA_WEBHOOK_URL_TÄHÄN";
+  const STAFF_PASSWORD = "Offical26COOKED!";
+
+  function login() {
+    const pw = document.getElementById('passwordInput').value;
+    if (pw === STAFF_PASSWORD) {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+    } else {
+      document.getElementById('errorMsg').style.display = 'block';
+      document.getElementById('passwordInput').value = '';
+    }
+  }
+
+  function logout() {
+    document.getElementById('loginScreen').style.display = 'block';
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('passwordInput').value = '';
+  }
+
+  async function sendAction(action) {
+    const player = document.getElementById('playerInput').value.trim();
+    const role = document.getElementById('roleSelect').value;
+
+    if (!player) { showToast('⚠ Enter a player name', 'error'); return; }
+    if (!role) { showToast('⚠ Select a role', 'error'); return; }
+
+    const isPromote = action === 'promote';
+    const color = isPromote ? 0x57F287 : 0xED4245;
+    const emoji = isPromote ? '⬆️' : '⬇️';
+    const actionText = isPromote ? 'promoted to' : 'demoted from';
+
+    const body = {
+      username: "OfficalBoxx Staff Panel",
+      avatar_url: "https://cdn.discordapp.com/embed/avatars/0.png",
+      embeds: [{
+        title: `${emoji} Role ${isPromote ? 'Promotion' : 'Demotion'}`,
+        description: `**${player}** has been **${actionText}** ${role}`,
+        color: color,
+        timestamp: new Date().toISOString()
+      }]
+    };
+
+    try {
+      const res = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (res.ok) {
+        showToast(`✅ ${player} ${actionText} ${role}`, 'success');
+        document.getElementById('playerInput').value = '';
+        document.getElementById('roleSelect').value = '';
+      } else {
+        showToast('❌ Failed to send message', 'error');
+      }
+    } catch (e) {
+      showToast('❌ Network error', 'error');
+    }
+  }
+
+  function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + type;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+</script>
+</body>
+</html>
